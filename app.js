@@ -7,7 +7,7 @@ const updateProductPrice = document.querySelector('#update-price');
 
 // Function to fetch all products from the server
 async function fetchProducts() {
-  const response = await fetch('http://18.223.16.164:3000/products');
+  const response = await fetch('http://localhost:3000/products');
   const products = await response.json();
 
   // Clear product list
@@ -34,13 +34,14 @@ async function fetchProducts() {
       updateProductId.value = product.id;
       updateProductName.value = product.name;
       updateProductPrice.value = product.price;
+      updateProductForm.style.display = 'block'; // Show update form
+      addProductForm.style.display = 'none'; // Hide add form
     });
     li.appendChild(updateButton);
 
     productList.appendChild(li);
   });
 }
-
 
 // Event listener for Add Product form submit button
 addProductForm.addEventListener('submit', async event => {
@@ -52,9 +53,22 @@ addProductForm.addEventListener('submit', async event => {
   await fetchProducts();
 });
 
+// Event listener for Update Product form submit button
+updateProductForm.addEventListener('submit', async event => {
+  event.preventDefault();
+  const id = updateProductId.value;
+  const name = updateProductName.value;
+  const price = updateProductPrice.value;
+  await updateProduct(id, name, price);
+  updateProductForm.reset();
+  updateProductForm.style.display = 'none'; // Hide update form
+  addProductForm.style.display = 'block'; // Show add form
+  await fetchProducts();
+});
+
 // Function to add a new product
 async function addProduct(name, price) {
-  const response = await fetch('http://18.223.16.164:3000/products', {
+  const response = await fetch('http://localhost:3000/products', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -64,14 +78,25 @@ async function addProduct(name, price) {
   return response.json();
 }
 
-// Function to delete a new product
+// Function to delete a product
 async function deleteProduct(id) {
-  const response = await fetch('http://18.223.16.164:3000/products/' + id, {
+  const response = await fetch('http://localhost:3000/products/' + id, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
+    }
+  });
+  return response.json();
+}
+
+// Function to update a product
+async function updateProduct(id, name, price) {
+  const response = await fetch('http://localhost:3000/products/' + id, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
     },
-    //body: JSON.stringify({id})
+    body: JSON.stringify({ name, price })
   });
   return response.json();
 }
